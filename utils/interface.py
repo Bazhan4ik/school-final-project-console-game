@@ -9,7 +9,7 @@ class Interface:
     def __init__(self):
         self.console = Console()
 
-    def main_menu(self, balance):
+    def main_menu(self, companies, research, balance):
         self.console.print("")
         self.console.print("MAIN MENU ".ljust(self.size, "-"))
         self.console.print(
@@ -18,9 +18,24 @@ class Interface:
             "| Balance".ljust(self.grid),
         )
 
+        i = 0
+        while True:
+            # print(research[i] if len(research) > i else "")
+            self.console.print(
+                f"| - {companies[i].get('name') if len(companies) > i else ''}".ljust(
+                    self.grid
+                ),
+                f"| - {research[i] if len(research) > i else ''}".ljust(self.grid),
+                "|".ljust(self.grid),
+            )
+
+            i += 1
+            if len(companies) <= i and len(research) <= i:
+                break
+
         action = self.console.actions(self.size, "Companies", "Research")
 
-        self.console.remove_lines()
+        return action
 
 
 class Console:
@@ -42,15 +57,11 @@ class Console:
         return result
 
     def actions(self, interface_size, *options):
-        output = ""
-        self.print("")
+        # self.print("")
         self.print("".center(interface_size, "-"))
         self.print("[?] Choose action")
 
         for id, option in enumerate(options):
-            # output = output + (f"({id}) " + option).ljust(
-            #     int(interface_size / len(options))
-            # )
             self.print(
                 f"    ({id + 1}) " + option.ljust(int(interface_size / len(options)))
             )
