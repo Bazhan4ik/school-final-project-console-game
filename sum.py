@@ -5,7 +5,7 @@ companies = [
     {
         "id": 1,
         "name": "Savor Symphony",
-        "income": 0.1,
+        "income": 0.8,
         "worth": 2,
         "improvements": [
             {
@@ -16,7 +16,22 @@ companies = [
                 "id": 1,
             }
         ],
-    }
+    },
+    {
+        "id": 1,
+        "name": "BioTeCh",
+        "income": 3,
+        "worth": 10,
+        "improvements": [
+            {
+                "title": "Some improvement",
+                "research_id": 11,
+                "income": 0.05,
+                "price": 0.5,
+                "id": 1,
+            }
+        ],
+    },
 ]
 
 

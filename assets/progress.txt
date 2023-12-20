@@ -1,1 +1,0 @@
-{"companies": [{"id":1, "improved": [1]}], "research": []}
