@@ -18,7 +18,7 @@ companies = [
         ],
     },
     {
-        "id": 1,
+        "id": 2,
         "name": "BioTeCh",
         "income": 3,
         "worth": 10,

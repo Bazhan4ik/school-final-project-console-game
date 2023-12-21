@@ -1,5 +1,6 @@
 import os
 import json
+from utils.default import get_starter_pack
 
 
 def filter_research(arr, ids):
@@ -32,6 +33,22 @@ def filter_companies(companies, arr):
     return filtered
 
 
+def calculate_income(companies):
+    income = 0
+    for company in companies:
+        improvements_income = 0
+
+        if company.improved:
+            for improvement in company.improvements:
+                if improvement.id in company.improved:
+                    improvements_income += improvement.income
+
+        company.income += improvements_income
+        income += company.income
+
+    return income
+
+
 def get_progress(companies, research):
     file = open(
         os.path.dirname(os.path.dirname(__file__)) + "/assets/progress.txt", "r"
@@ -40,21 +57,27 @@ def get_progress(companies, research):
     content = file.read()
 
     if len(content) == 0:
-        return {
-            "companies": [],
-            "research": [],
-            "balance": 0,
-        }
+        starter = get_starter_pack()
+        return Progress([starter.get("company")], [], balance=0, days=0)
 
     parsed = json.loads(content)
 
     saved_companies = filter_companies(companies, parsed.get("companies"))
     saved_research = filter_research(research, parsed.get("research"))
 
-    print(saved_companies)
+    return Progress(
+        saved_companies,
+        saved_research,
+        balance=parsed.get("balance"),
+        days=parsed.get("days"),
+    )
 
-    return {
-        "companies": saved_companies,
-        "research": saved_research,
-        "balance": parsed.get("balance"),
-    }
+
+class Progress:
+    def __init__(self, companies, research, balance, days):
+        self.companies = companies
+        self.research = research
+        self.balance = balance
+        self.days = days
+
+        self.income = calculate_income(companies)

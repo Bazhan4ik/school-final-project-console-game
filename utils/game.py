@@ -12,3 +12,7 @@ class Game:
         self.research = get_research()
 
         self.progress = get_progress(self.companies, self.research)
+
+    def moveon(self):
+        self.progress.balance += self.progress.income
+        self.progress.balance = round(self.progress.balance, 3)
