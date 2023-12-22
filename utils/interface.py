@@ -213,12 +213,14 @@ class Interface:
                 if len(company.improvements) > 1:
                     self.console.print(
                         f"| Worth ${company.worth}M".ljust(col1),
-                        f"| - {company.improvements[1].title} (${company.improvements[1].price}M)",
+                        f"| - {company.improvements[1].title} (${company.improvements[1].price}M)".ljust(
+                            col2
+                        ),
                     )
                 else:
                     self.console.print(
                         f"| Worth ${company.worth}M".ljust(col1),
-                        f"| ",
+                        f"| ".ljust(col2),
                     )
 
                 break

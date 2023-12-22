@@ -17,6 +17,7 @@ class Game:
         self.progress = get_progress(self.companies, self.research)
 
         self.filter_companies()
+        self.filter_research()
 
     def moveon(self):
         self.progress.balance += self.progress.income
@@ -28,6 +29,8 @@ class Game:
                 continue
             if research.finish_by == self.progress.months:
                 research.completed = True
+
+        self.progress.save()
 
     def filter_companies(self):
         for purchased_company in self.progress.companies:

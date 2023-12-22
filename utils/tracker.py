@@ -3,32 +3,46 @@ import json
 from utils.default import get_starter_pack
 
 
-def filter_research(arr, ids):
+# research is an array of Research objects
+# arr is an array of dictionaries like Research
+def filter_research(research, arr):
     filtered = []
     for el in arr:
-        if el.get("id") in ids:
-            filtered.append(el)
+        for r in research:
+            if el.get("id") == r.id:
+                if el.get("completed"):
+                    r.completed = True
+                elif el.get("finish_by"):
+                    r.completed = False
+                    r.finish_by = el.get("finish_by")
+                filtered.append(r)
+
     return filtered
 
 
 def filter_improvements(available, purchased):
     result = []
     for i in available:
-        if i.get("id") in purchased:
+        if i.id in purchased:
             result.append(available)
     return result
 
 
+# companies are Company object
+# arr are dictionaries
 def filter_companies(companies, arr):
     filtered = []
     for comp in arr:
+        # comp is a dictionary
         id = comp.get("id")
         improved = comp.get("improved")
         for company in companies:
-            if company.get("id") == id:
-                company["improved"] = filter_improvements(
-                    company.get("improvements"), improved
-                )
+            # company is Company object
+            if company.id == id:
+                if improved:
+                    company["improved"] = filter_improvements(
+                        company.improvements, improved
+                    )
                 filtered.append(company)
     return filtered
 
@@ -69,7 +83,7 @@ def get_progress(companies, research):
         saved_companies,
         saved_research,
         balance=parsed.get("balance"),
-        days=parsed.get("months"),
+        months=parsed.get("months"),
     )
 
 
@@ -83,6 +97,28 @@ class Progress:
         self.income = calculate_income(companies)
 
     def save(self):
+        file = open(
+            os.path.dirname(os.path.dirname(__file__)) + "/assets/progress.txt", "w"
+        )
+
+        def c(obj):
+            dict = obj.__dict__
+            if hasattr(obj, "improvements"):
+                dict["improvements"] = list(map(c, obj.improvements))
+            return dict
+
+        new_content = json.dumps(
+            {
+                "companies": list(map(c, self.companies)),
+                "research": list(map(c, self.research)),
+                "balance": self.balance,
+                "months": self.months,
+            }
+        )
+
+        file.write(new_content)
+        file.close()
+
         return
 
     def currently_researching(self):
