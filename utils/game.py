@@ -54,3 +54,13 @@ class Game:
         self.progress.research.append(new_research)
         self.research.remove(new_research)
         self.progress.save()
+
+    def get_available_improvements(self, improvements):
+        result = []
+        for improvement in improvements:
+            for research in self.progress.research:
+                if improvement.research_id == research.id and research.completed:
+                    result.append(improvement)
+                    break
+
+        return result

@@ -191,6 +191,40 @@ class Interface:
 
             return selected_company
 
+    def company_info(self, company, improvements):
+        self.console.print(self.tab_tracker)
+        self.console.print("COMPANY INFO ".ljust(self.size, "-"))
+
+        col1 = int(self.size * 0.4)
+        col2 = int(self.size * 0.6)
+
+        self.console.print(f"| {company.name}".ljust(col1), "| Available improvements")
+
+        i = -1
+        while True:
+            i += 1
+            if i == 0:
+                self.console.print(
+                    f"| Income ${company.income}M/month".ljust(col1),
+                    f"| - {company.improvements[0].title} (${company.improvements[0].price}M)",
+                )
+                continue
+            elif i == 1:
+                if len(company.improvements) > 1:
+                    self.console.print(
+                        f"| Worth ${company.worth}M".ljust(col1),
+                        f"| - {company.improvements[1].title} (${company.improvements[1].price}M)",
+                    )
+                else:
+                    self.console.print(
+                        f"| Worth ${company.worth}M".ljust(col1),
+                        f"| ",
+                    )
+
+                break
+
+        action = self.console.actions(self.size, "Main menu")
+
     def research_interface(
         self, balance, research, currently_researching, current_months
     ):

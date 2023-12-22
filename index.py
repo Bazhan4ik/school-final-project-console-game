@@ -55,7 +55,17 @@ while True:
         elif secondary_action == 2:
             interface.set_tab("Main menu > Companies > Company info")
 
-            next_step = interface.select_company__info(game.progress.companies)
+            result = interface.select_company__info(game.progress.companies)
+
+            if result == 0:
+                continue
+
+            interface.console.remove_lines()
+
+            interface.company_info(
+                result, game.get_available_improvements(result.improvements)
+            )
+
         elif secondary_action == 1:
             continue
     elif action == 2:

@@ -14,7 +14,14 @@ import json
 #                 "income": 0.05,
 #                 "price": 0.5,
 #                 "id": 1,
-#             }
+#             },
+#             {
+#                 "title": "Advanced destribution",
+#                 "research_id": 12,
+#                 "income": 0.1,
+#                 "price": 1,
+#                 "id": 2,
+#             },
 #         ],
 #     },
 #     {

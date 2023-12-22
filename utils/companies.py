@@ -8,8 +8,17 @@ class Company:
         self.id = id
         self.income = income
         self.worth = worth
-        self.improvements = improvements
+        self.improvements = parse_improvements(improvements)
         self.improved = other.get("improved")  # array of ids that
+
+
+class Improvement:
+    def __init__(self, title, research_id, income, price, id):
+        self.title = title
+        self.research_id = research_id
+        self.income = income
+        self.price = price
+        self.id = id
 
 
 def get_companies():
@@ -34,4 +43,19 @@ def get_companies():
             )
         )
 
+    return result
+
+
+def parse_improvements(improvements):
+    result = []
+    for i in improvements:
+        result.append(
+            Improvement(
+                i.get("title"),
+                i.get("research_id"),
+                i.get("income"),
+                i.get("price"),
+                i.get("id"),
+            )
+        )
     return result
