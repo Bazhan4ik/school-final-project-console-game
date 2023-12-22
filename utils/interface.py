@@ -9,14 +9,18 @@ class Interface:
 
     def __init__(self):
         self.console = Console()
+        self.tab_tracker = "Main menu >"
 
-    def main_menu(self, companies, research, balance, income):
-        self.console.print("")
+    def set_tab(self, setto):
+        self.tab_tracker = setto
+
+    def main_menu(self, companies, research, balance, income, month):
+        self.console.print(self.tab_tracker)
         self.console.print("MAIN MENU ".ljust(self.size, "-"))
         self.console.print(
-            "| Companies".ljust(self.col_size),
-            "| Research".ljust(self.col_size),
-            "| Money".ljust(self.col_size),
+            "| Your Companies".ljust(self.col_size),
+            "| Available Research".ljust(self.col_size),
+            "| Stats".ljust(self.col_size),
         )
 
         i = 0
@@ -26,12 +30,14 @@ class Interface:
                 col1 = f"| - {companies[i].name} (${companies[i].income}/month)"
             col2 = "|"
             if len(research) > i:
-                col2 = f"| - {research[i].get('name')} (${research[i].get('price')}M)"
+                col2 = f"| - {research[i].name} (${research[i].price}M)"
             col3 = "|"
             if i == 0:
                 col3 = f"| Balance - ${balance}M"
             elif i == 1:
                 col3 = f"| Income - ${income}M"
+            elif i == 2:
+                col3 = f"| Months passed - {month}"
 
             self.console.print(
                 col1.ljust(self.col_size),
@@ -39,7 +45,7 @@ class Interface:
                 col3.ljust(self.col_size),
             )
             i += 1
-            if len(companies) <= i and len(research) <= i:
+            if len(companies) <= i and len(research) <= i and i > 2:
                 break
 
         action = self.console.actions(self.size, "Companies", "Research", "Next Month")
@@ -47,7 +53,7 @@ class Interface:
         return action
 
     def companies_interface(self, progress, companies):
-        self.console.print("")
+        self.console.print(self.tab_tracker)
         self.console.print("COMPANIES ".ljust(self.size, "-"))
         self.console.print(
             "| Your Companies".ljust(self.col2_size),
@@ -58,7 +64,7 @@ class Interface:
         while True:
             col1 = "|"
             if len(progress) > i:
-                col1 = f"{progress[i].name} (${progress[i].income}/month)"
+                col1 = f"| - {progress[i].name} (${progress[i].income}/month)"
 
             col2 = "|"
             if len(companies) > i:
@@ -80,13 +86,21 @@ class Interface:
         return action
 
     def buy_company(self, balance, companies):
+        if len(companies) == 0:
+            self.console.print("")
+            self.console.print("")
+            self.console.print("-= NO COMPANIES TO BUY =-")
+            time.sleep(2.5)
+
+            return 1
+
         col1_size = int(self.size * 0.45)
         col2_size = int(self.size * 0.2)
         col3_size = int(self.size * 0.2)
         col4_size = int(self.size * 0.15)
 
-        self.console.print("")
-        self.console.print("MARKET ".ljust(self.size, "-"))
+        self.console.print(self.tab_tracker)
+        self.console.print(f"MARKET ----- BALANCE: ${balance}M ".ljust(self.size, "-"))
         self.console.print(
             "| Name".ljust(col1_size),
             "| Worth".ljust(col2_size),
@@ -112,8 +126,8 @@ class Interface:
         col3_size = int(self.size * 0.2)
         col4_size = int(self.size * 0.15)
 
-        self.console.print("")
-        self.console.print("MARKET ".ljust(self.size, "-"))
+        self.console.print(self.tab_tracker)
+        self.console.print(f"MARKET ----- BALANCE: ${balance}M ".ljust(self.size, "-"))
         self.console.print(
             "| Name".ljust(col1_size),
             "| Worth".ljust(col2_size),
@@ -136,6 +150,7 @@ class Interface:
                 return 0
 
             if number < 0 or number > len(companies):
+                self.console.remove_many_lines(4)
                 continue
 
             selected_company = companies[number - 1]
@@ -152,6 +167,121 @@ class Interface:
 
                 return 0
 
+            return selected_company
+
+    def select_company__info(self, companies):
+        self.console.print(self.tab_tracker)
+        self.console.print(f"YOUR COMPANIES ".ljust(self.size, "-"))
+        self.console.print("| Select your company")
+
+        for i, company in enumerate(companies):
+            self.console.print(f"| [{i + 1}] {company.name}")
+
+        while True:
+            number = self.console.ask_number(self.size, "Company's number")
+
+            if number == -1:
+                return 0
+
+            if number < 0 or number > len(companies):
+                self.console.remove_many_lines(4)
+                continue
+
+            selected_company = companies[number - 1]
+
+            return selected_company
+
+    def research_interface(
+        self, balance, research, currently_researching, current_months
+    ):
+        if len(research) == 0:
+            self.console.print("")
+            self.console.print("")
+            self.console.print("-= NO RESEARCH TO DO =-")
+            time.sleep(2.5)
+
+            return 1
+
+        col1_size = int(self.size * 0.5)
+        col2_size = int(self.size * 0.25)
+        col3_size = int(self.size * 0.25)
+
+        self.console.print(self.tab_tracker)
+        self.console.print(
+            f"STUDYING ----- BALANCE: ${balance}M ".ljust(self.size, "-")
+        )
+        self.console.print(
+            "| Name".ljust(col1_size),
+            "| Price".ljust(col2_size),
+            "| Duration".ljust(col3_size),
+        )
+
+        for cr in currently_researching:
+            self.console.print(
+                f"| {cr.name}".ljust(col1_size),
+                f"| ${cr.price}M".ljust(col2_size),
+                f"| {cr.finish_by - current_months} months left".ljust(col3_size),
+            )
+
+        for i, research in enumerate(research):
+            self.console.print(
+                f"| {research.name}".ljust(col1_size),
+                f"| ${research.price}M".ljust(col2_size),
+                f"| {research.duration} months".ljust(col3_size),
+            )
+
+        action = self.console.actions(self.size, "Main menu", "Select research")
+
+        return action
+
+    def select_research(self, balance, research_list):
+        col1_size = int(self.size * 0.45)
+        col2_size = int(self.size * 0.2)
+        col3_size = int(self.size * 0.2)
+
+        self.console.print(self.tab_tracker)
+        self.console.print(
+            f"STUDYING ----- BALANCE: ${balance}M ".ljust(self.size, "-")
+        )
+        self.console.print(
+            "| Name".ljust(col1_size),
+            "| Price".ljust(col2_size),
+            "| Duration".ljust(col3_size),
+        )
+
+        for i, research in enumerate(research_list):
+            self.console.print(
+                f"| [{i + 1}] {research.name}".ljust(col1_size),
+                f"| ${research.price}M".ljust(col2_size),
+                f"| {research.duration} months".ljust(col3_size),
+            )
+
+        while True:
+            number = self.console.ask_number(self.size, "Research's number")
+
+            if number == -1:
+                return 0
+
+            if number < 0 or number > len(research_list):
+                self.console.remove_many_lines(4)
+                continue
+
+            selected_research = research_list[number - 1]
+
+            if selected_research.price > balance:
+                self.console.remove_lines()
+                self.console.print()
+                self.console.print()
+                self.console.print(
+                    "-= NOT ENOUGH FUNDS (BALANCE) =-".center(int(self.size / 2))
+                )
+                time.sleep(2.5)
+                self.console.remove_lines()
+
+                return 0
+
+            return selected_research
+
 
 class Console:
     lines_tracker = 0
@@ -166,6 +296,12 @@ class Console:
         sys.stdout.write("\033[F")  # Cursor up one line
         sys.stdout.write("\033[K")  # Clear line
         self.lines_tracker -= 1
+
+    def remove_many_lines(self, lines):
+        for _ in range(lines):
+            sys.stdout.write("\033[F")  # Cursor up one line
+            sys.stdout.write("\033[K")  # Clear line
+        self.lines_tracker -= lines
 
     def print(self, *str):
         print("".join(str))

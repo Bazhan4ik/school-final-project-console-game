@@ -11,23 +11,31 @@ def get_research():
 
     file.close()
 
-    return parsed
+    result = []
+    for research in parsed:
+        result.append(
+            Research(
+                research.get("name"),
+                research.get("id"),
+                research.get("price"),
+                research.get("duration"),
+                research.get("after"),
+            )
+        )
+
+    return result
 
 
-# research = [
-#     {
-#         "id": 11,
-#         "name": "Distribution Strategies",
-#         "price": 0.5,
-#     },
-#     {
-#         "id": 11,
-#         "name": "Advanced Distribution Strategies",
-#         "price": 0.5,
-#     },
-# ]
+class Research:
+    def __init__(self, name, id, price, duration, after, **other):
+        self.name = name
+        self.id = id
+        self.price = price
+        self.duration = duration
+        self.after = after
+        self.completed = False
 
-
-# file = open(os.path.dirname(os.path.dirname(__file__)) + "/assets/research.txt", "w")
-
-# file.write(json.dumps(research))
+        if other.get("finish_by"):
+            self.finish_by = other.get("finish_by")
+        if other.get("completed"):
+            self.completed = other.get("completed")

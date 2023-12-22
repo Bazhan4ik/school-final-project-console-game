@@ -58,7 +58,7 @@ def get_progress(companies, research):
 
     if len(content) == 0:
         starter = get_starter_pack()
-        return Progress([starter.get("company")], [], balance=0, days=0)
+        return Progress([starter.get("company")], [], balance=0, months=0)
 
     parsed = json.loads(content)
 
@@ -69,15 +69,26 @@ def get_progress(companies, research):
         saved_companies,
         saved_research,
         balance=parsed.get("balance"),
-        days=parsed.get("days"),
+        days=parsed.get("months"),
     )
 
 
 class Progress:
-    def __init__(self, companies, research, balance, days):
+    def __init__(self, companies, research, balance, months):
         self.companies = companies
         self.research = research
         self.balance = balance
-        self.days = days
+        self.months = months
 
         self.income = calculate_income(companies)
+
+    def save(self):
+        return
+
+    def currently_researching(self):
+        result = []
+        for research in self.research:
+            if not research.completed:
+                result.append(research)
+
+        return result
