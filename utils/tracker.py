@@ -1,5 +1,6 @@
 import os
 import json
+import copy
 from utils.default import get_starter_pack
 
 
@@ -40,9 +41,7 @@ def filter_companies(companies, arr):
             # company is Company object
             if company.id == id:
                 if improved:
-                    company["improved"] = filter_improvements(
-                        company.improvements, improved
-                    )
+                    company.set_improved(improved)
                 filtered.append(company)
     return filtered
 
@@ -102,7 +101,7 @@ class Progress:
         )
 
         def c(obj):
-            dict = obj.__dict__
+            dict = copy.deepcopy(obj.__dict__)
             if hasattr(obj, "improvements"):
                 dict["improvements"] = list(map(c, obj.improvements))
             return dict

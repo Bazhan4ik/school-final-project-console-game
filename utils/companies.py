@@ -3,13 +3,35 @@ import os
 
 
 class Company:
-    def __init__(self, name, id, income, worth, improvements, **other):
+    def __init__(self, name, id, income, worth, after, improvements, **other):
         self.name = name
         self.id = id
         self.income = income
         self.worth = worth
+        self.after = after
         self.improvements = parse_improvements(improvements)
-        self.improved = other.get("improved")  # array of ids that
+        if other.get("improved"):
+            self.improved = other.get("improved")  # array of improvements ids
+        else:
+            self.improved = []
+
+    def set_improved(self, improved):
+        self.improved = improved
+        # for improvement in self.improvements:
+        #     if improvement.id in improved:
+        #         self.improvements.remove(improvement)
+
+    def get_available_improvements(self, completed_research):
+        amount = 0
+        for improvement in self.improvements:
+            if improvement.id in self.improved:
+                continue
+            for cr in completed_research:
+                if cr.id == improvement.research_id and cr.completed:
+                    amount += 1
+                    break
+
+        return amount
 
 
 class Improvement:
@@ -39,6 +61,7 @@ def get_companies():
                 company.get("id"),
                 company.get("income"),
                 company.get("worth"),
+                company.get("after"),
                 company.get("improvements"),
             )
         )

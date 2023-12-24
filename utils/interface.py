@@ -14,7 +14,9 @@ class Interface:
     def set_tab(self, setto):
         self.tab_tracker = setto
 
-    def main_menu(self, companies, research, balance, income, month):
+    def main_menu(
+        self, companies, research, completed_research, balance, income, month
+    ):
         self.console.print(self.tab_tracker)
         self.console.print("MAIN MENU ".ljust(self.size, "-"))
         self.console.print(
@@ -27,7 +29,10 @@ class Interface:
         while True:
             col1 = "|"
             if len(companies) > i:
-                col1 = f"| - {companies[i].name} (${companies[i].income}/month)"
+                col1 = f"| - {companies[i].name} (${companies[i].income}M/month)"
+                imprs = companies[i].get_available_improvements(completed_research)
+                if imprs > 0:
+                    col1 += f" [{imprs}*]"
             col2 = "|"
             if len(research) > i:
                 col2 = f"| - {research[i].name} (${research[i].price}M)"
@@ -52,7 +57,7 @@ class Interface:
 
         return action
 
-    def companies_interface(self, progress, companies):
+    def companies_interface(self, purchased_companies, companies, completed_research):
         self.console.print(self.tab_tracker)
         self.console.print("COMPANIES ".ljust(self.size, "-"))
         self.console.print(
@@ -63,8 +68,8 @@ class Interface:
         i = 0
         while True:
             col1 = "|"
-            if len(progress) > i:
-                col1 = f"| - {progress[i].name} (${progress[i].income}/month)"
+            if len(purchased_companies) > i:
+                col1 = f"| - {purchased_companies[i].name} (${purchased_companies[i].income}/month) [{purchased_companies[i].get_available_improvements(completed_research)}*]"
 
             col2 = "|"
             if len(companies) > i:
@@ -76,47 +81,12 @@ class Interface:
             )
 
             i += 1
-            if len(companies) <= i and len(progress) <= i:
+            if len(companies) <= i and len(purchased_companies) <= i:
                 break
 
         action = self.console.actions(
-            self.size, "Main menu", "Select company", "Buy company"
+            self.size, "Main menu", "Select your company", "Buy company"
         )
-
-        return action
-
-    def buy_company(self, balance, companies):
-        if len(companies) == 0:
-            self.console.print("")
-            self.console.print("")
-            self.console.print("-= NO COMPANIES TO BUY =-")
-            time.sleep(2.5)
-
-            return 1
-
-        col1_size = int(self.size * 0.45)
-        col2_size = int(self.size * 0.2)
-        col3_size = int(self.size * 0.2)
-        col4_size = int(self.size * 0.15)
-
-        self.console.print(self.tab_tracker)
-        self.console.print(f"MARKET ----- BALANCE: ${balance}M ".ljust(self.size, "-"))
-        self.console.print(
-            "| Name".ljust(col1_size),
-            "| Worth".ljust(col2_size),
-            "| ~Income".ljust(col3_size),
-            "| ~Potential".ljust(col4_size),
-        )
-
-        for i, company in enumerate(companies):
-            self.console.print(
-                f"| {company.name}".ljust(col1_size),
-                f"| ${company.worth}M".ljust(col2_size),
-                f"| ${company.income}M/month".ljust(col3_size),
-                f"| {company.income}".ljust(col4_size),
-            )
-
-        action = self.console.actions(self.size, "Main menu", "Select company")
 
         return action
 
@@ -204,16 +174,22 @@ class Interface:
         while True:
             i += 1
             if i == 0:
-                self.console.print(
-                    f"| Income ${company.income}M/month".ljust(col1),
-                    f"| - {company.improvements[0].title} (${company.improvements[0].price}M)",
-                )
+                if len(improvements) > 0:
+                    self.console.print(
+                        f"| Income ${company.income}M/month".ljust(col1),
+                        f"| - {improvements[0].title} (${improvements[0].price}M)",
+                    )
+                else:
+                    self.console.print(
+                        f"| Income ${company.income}M/month".ljust(col1),
+                        "| ".ljust(col2),
+                    )
                 continue
             elif i == 1:
-                if len(company.improvements) > 1:
+                if len(improvements) > 1:
                     self.console.print(
                         f"| Worth ${company.worth}M".ljust(col1),
-                        f"| - {company.improvements[1].title} (${company.improvements[1].price}M)".ljust(
+                        f"| - {improvements[1].title} (${improvements[1].price}M)".ljust(
                             col2
                         ),
                     )
@@ -225,12 +201,64 @@ class Interface:
 
                 break
 
-        action = self.console.actions(self.size, "Main menu")
+        action = self.console.actions(self.size, "Main menu", "Improve")
+
+        return action
+
+    def improve_company(self, balance, improvements):
+        # or select improvement
+
+        col1_size = int(self.size * 0.5)
+        col2_size = int(self.size * 0.25)
+        col3_size = int(self.size * 0.25)
+
+        self.console.print(self.tab_tracker)
+        self.console.print(
+            f"IMPROVING ----- BALANCE: ${balance}M ".ljust(self.size, "-")
+        )
+        self.console.print(
+            "| Name".ljust(col1_size),
+            "| Price".ljust(col2_size),
+            "| Income".ljust(col3_size),
+        )
+
+        for i, improvement in enumerate(improvements):
+            self.console.print(
+                f"| [{i + 1}] {improvement.title}".ljust(col1_size),
+                f"| ${improvement.price}M".ljust(col2_size),
+                f"| + ${improvement.income}M/months".ljust(col3_size),
+            )
+
+        while True:
+            number = self.console.ask_number(self.size, "Improvement's number")
+
+            if number == -1:
+                return 0
+
+            if number < 0 or number > len(improvements):
+                self.console.remove_many_lines(4)
+                continue
+
+            selected_improvement = improvements[number - 1]
+
+            if selected_improvement.price > balance:
+                self.console.remove_lines()
+                self.console.print()
+                self.console.print()
+                self.console.print(
+                    "-= NOT ENOUGH FUNDS (BALANCE) =-".center(int(self.size / 2))
+                )
+                time.sleep(2.5)
+                self.console.remove_lines()
+
+                return 0
+
+            return selected_improvement
 
     def research_interface(
         self, balance, research, currently_researching, current_months
     ):
-        if len(research) == 0:
+        if len(research) == 0 and len(currently_researching) == 0:
             self.console.print("")
             self.console.print("")
             self.console.print("-= NO RESEARCH TO DO =-")
@@ -266,7 +294,7 @@ class Interface:
                 f"| {research.duration} months".ljust(col3_size),
             )
 
-        action = self.console.actions(self.size, "Main menu", "Select research")
+        action = self.console.actions(self.size, "Main menu", "Select new research")
 
         return action
 

@@ -14,7 +14,8 @@ while True:
 
     action = interface.main_menu(
         game.progress.companies,
-        game.available_research[0:10],
+        game.available_research,
+        game.progress.research,
         game.progress.balance,
         game.progress.income,
         game.progress.months,
@@ -26,7 +27,7 @@ while True:
         interface.set_tab("Main menu > Companies")
 
         secondary_action = interface.companies_interface(
-            game.progress.companies, game.available_companies
+            game.progress.companies, game.available_companies, game.progress.research
         )
 
         interface.console.remove_lines()
@@ -34,37 +35,43 @@ while True:
         if secondary_action == 3:
             interface.set_tab("Main menu > Companies > Buy")
 
-            next_step = interface.buy_company(
+            result = interface.select_company(
                 game.progress.balance, game.available_companies
             )
-
-            if next_step == 1:
-                continue
-            elif next_step == 2:
-                interface.console.remove_lines()
-
-                interface.set_tab("Main menu > Companies > Buy > Almost there")
-                result = interface.select_company(
-                    game.progress.balance, game.available_companies
-                )
-
-                if result == 0:
-                    continue
-
-                game.add_company(result)
-        elif secondary_action == 2:
-            interface.set_tab("Main menu > Companies > Company info")
-
-            result = interface.select_company__info(game.progress.companies)
 
             if result == 0:
                 continue
 
+            game.add_company(result)
+        elif secondary_action == 2:
+            interface.set_tab("Main menu > Companies > Company info")
+
+            company = interface.select_company__info(game.progress.companies)
+
+            if company == 0:
+                continue
+
             interface.console.remove_lines()
 
-            interface.company_info(
-                result, game.get_available_improvements(result.improvements)
+            available_improvements = game.get_available_improvements(
+                company.improvements, company.improved
             )
+
+            next_step = interface.company_info(company, available_improvements)
+
+            if next_step == 2:
+                interface.console.remove_lines()
+
+                interface.set_tab("Main menu > Companies > Company info > Improve")
+
+                improvement = interface.improve_company(
+                    game.progress.balance, available_improvements
+                )
+
+                if improvement == 0:
+                    continue
+
+                game.improve_company(company.id, improvement)
 
         elif secondary_action == 1:
             continue
