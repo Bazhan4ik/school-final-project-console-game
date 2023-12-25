@@ -93,16 +93,23 @@ class Game:
     def add_company(self, new_company):
         self.companies.remove(new_company)
         self.progress.companies.append(new_company)
-        self.progress.income += new_company.income
+        self.progress.income = round(self.progress.income + new_company.income, 2)
         self.progress.balance = round(self.progress.balance - new_company.worth, 2)
+        self.progress.assets = round(self.progress.assets + new_company.worth, 2)
         self.filter_companies()
         self.progress.save()
 
     def improve_company(self, company_id, improvement):
         for company in self.progress.companies:
             if company.id == company_id:
-                company.income += improvement.income
-                self.progress.income += improvement.income
+                company.income = round(company.income + improvement.income, 2)
+                self.progress.income = round(
+                    self.progress.income + improvement.income, 2
+                )
+                company.worth += improvement.price
+                self.progress.assets = round(
+                    self.progress.assets + improvement.price * 1.5, 2
+                )
                 if hasattr(company, "improved"):
                     company.improved.append(improvement.id)
                     break

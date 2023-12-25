@@ -15,7 +15,7 @@ class Interface:
         self.tab_tracker = setto
 
     def main_menu(
-        self, companies, research, completed_research, balance, income, month
+        self, companies, research, completed_research, balance, assets, income, month
     ):
         self.console.print(self.tab_tracker)
         self.console.print("MAIN MENU ".ljust(self.size, "-"))
@@ -43,6 +43,8 @@ class Interface:
                 col3 = f"| Income - ${income}M"
             elif i == 2:
                 col3 = f"| Months passed - {month}"
+            elif i == 3:
+                col3 = f"| Assets - ${assets}M"
 
             self.console.print(
                 col1.ljust(self.col_size),
@@ -50,7 +52,7 @@ class Interface:
                 col3.ljust(self.col_size),
             )
             i += 1
-            if len(companies) <= i and len(research) <= i and i > 2:
+            if len(companies) <= i and len(research) <= i and i > 3:
                 break
 
         action = self.console.actions(self.size, "Companies", "Research", "Next Month")
@@ -69,7 +71,7 @@ class Interface:
         while True:
             col1 = "|"
             if len(purchased_companies) > i:
-                col1 = f"| - {purchased_companies[i].name} (${purchased_companies[i].income}/month) [{purchased_companies[i].get_available_improvements(completed_research)}*]"
+                col1 = f"| {i + 1}. {purchased_companies[i].name} (${purchased_companies[i].income}/month) [{purchased_companies[i].get_available_improvements(completed_research)}*]"
 
             col2 = "|"
             if len(companies) > i:
@@ -85,7 +87,11 @@ class Interface:
                 break
 
         action = self.console.actions(
-            self.size, "Main menu", "Select your company", "Buy company"
+            self.size,
+            "Main menu",
+            "Select your company",
+            "Buy company",
+            "Improve a company",
         )
 
         return action
@@ -94,7 +100,6 @@ class Interface:
         col1_size = int(self.size * 0.45)
         col2_size = int(self.size * 0.2)
         col3_size = int(self.size * 0.2)
-        col4_size = int(self.size * 0.15)
 
         self.console.print(self.tab_tracker)
         self.console.print(f"MARKET ----- BALANCE: ${balance}M ".ljust(self.size, "-"))
@@ -102,7 +107,6 @@ class Interface:
             "| Name".ljust(col1_size),
             "| Worth".ljust(col2_size),
             "| ~Income".ljust(col3_size),
-            "| ~Potential".ljust(col4_size),
         )
 
         for i, company in enumerate(companies):
@@ -110,7 +114,6 @@ class Interface:
                 f"| [{i + 1}] {company.name}".ljust(col1_size),
                 f"| ${company.worth}M".ljust(col2_size),
                 f"| ${company.income}M/month".ljust(col3_size),
-                f"| {company.income}".ljust(col4_size),
             )
 
         while True:
@@ -226,7 +229,7 @@ class Interface:
             self.console.print(
                 f"| [{i + 1}] {improvement.title}".ljust(col1_size),
                 f"| ${improvement.price}M".ljust(col2_size),
-                f"| + ${improvement.income}M/months".ljust(col3_size),
+                f"| + ${improvement.income}M/month".ljust(col3_size),
             )
 
         while True:
@@ -346,6 +349,43 @@ class Interface:
 
             return selected_research
 
+    def you_won(self, balance, assets, months):
+        self.console.print("\t -= YOU WON =-")
+        time.sleep(3)
+        self.console.remove1_line()
+        self.console.print("\t You've earned $200B")
+        time.sleep(2.5)
+        self.console.remove1_line()
+        self.console.print("\t It took you a minute")
+        time.sleep(2.5)
+        self.console.remove1_line()
+        self.console.print(f"\t {int(round(months / 12, 0))} years it took")
+        if int(round(months / 12, 0)) // 50 > 1:
+            time.sleep(2.5)
+            self.console.remove1_line()
+            self.console.print(
+                f"\t About {int(round(months / 12, 0)) // 50} generations"
+            )
+        time.sleep(2.5)
+        self.console.remove1_line()
+        self.console.print(f"\t Elon Musk did it when he was 50")
+        time.sleep(2.5)
+        self.console.remove1_line()
+        self.console.print(
+            f"\t It took him just 23 years earn to 200 billion, from when he earned just a 1 million at 27"
+        )
+        time.sleep(3)
+        self.console.remove1_line()
+        self.console.print(
+            f"\t But it doesn't matter, because the main thing is to be a good person"
+        )
+        time.sleep(3)
+        self.console.remove1_line()
+        self.console.print(f"\t Elon failed to do that :(")
+        time.sleep(2.5)
+        self.console.remove1_line()
+        self.console.print(f"\t The moral of the game is to be a good person :)")
+
 
 class Console:
     lines_tracker = 0
@@ -357,14 +397,14 @@ class Console:
         self.lines_tracker = 0
 
     def remove1_line(self):
-        sys.stdout.write("\033[F")  # Cursor up one line
-        sys.stdout.write("\033[K")  # Clear line
+        sys.stdout.write("\033[F")
+        sys.stdout.write("\033[K")
         self.lines_tracker -= 1
 
     def remove_many_lines(self, lines):
         for _ in range(lines):
-            sys.stdout.write("\033[F")  # Cursor up one line
-            sys.stdout.write("\033[K")  # Clear line
+            sys.stdout.write("\033[F")
+            sys.stdout.write("\033[K")
         self.lines_tracker -= lines
 
     def print(self, *str):
@@ -409,3 +449,13 @@ class Console:
             except ValueError:
                 self.remove1_line()
                 continue
+
+    # def remove_lines(self):
+    #     for _ in range(40):
+    #         print("\n")
+    #     self.lines_tracker = 0
+    # def remove1_lines(self):
+    #     self.lines_tracker = 0
+
+    # def remove_many_lines(self):
+    #     self.lines_tracker = 0

@@ -17,6 +17,7 @@ while True:
         game.available_research,
         game.progress.research,
         game.progress.balance,
+        game.progress.assets,
         game.progress.income,
         game.progress.months,
     )
@@ -72,6 +73,42 @@ while True:
                     continue
 
                 game.improve_company(company.id, improvement)
+        elif secondary_action == 4:
+
+            def has_available_improvements(el):
+                for improvement in el.improvements:
+                    for research in game.progress.research:
+                        if (
+                            improvement.id not in el.improved
+                            and research.id == improvement.research_id
+                            and research.completed
+                        ):
+                            return True
+                return False
+
+            company = interface.select_company__info(
+                list(filter(has_available_improvements, game.progress.companies))
+            )
+
+            if company == 0:
+                continue
+
+            interface.console.remove_lines()
+
+            interface.set_tab("Main menu > Companies > Company info > Improve")
+
+            available_improvements = game.get_available_improvements(
+                company.improvements, company.improved
+            )
+
+            improvement = interface.improve_company(
+                game.progress.balance, available_improvements
+            )
+
+            if improvement == 0:
+                continue
+
+            game.improve_company(company.id, improvement)
 
         elif secondary_action == 1:
             continue
@@ -102,3 +139,9 @@ while True:
 
     elif action == 3:
         game.moveon()
+
+        if game.progress.balance + game.progress.assets > 200000:
+            break
+
+
+interface.you_won(game.progress.balance, game.progress.assets, game.progress.months)

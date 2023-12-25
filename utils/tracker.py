@@ -48,18 +48,23 @@ def filter_companies(companies, arr):
 
 def calculate_income(companies):
     income = 0
+    assets = 0
     for company in companies:
         improvements_income = 0
 
         if company.improved:
             for improvement in company.improvements:
                 if improvement.id in company.improved:
-                    improvements_income += improvement.income
+                    improvements_income = round(
+                        improvements_income + improvement.income, 2
+                    )
+                    company.worth = round(company.worth + (improvement.price * 1.5), 2)
 
-        company.income += improvements_income
-        income += company.income
+        company.income = round(company.income + improvements_income, 2)
+        income = round(income + company.income, 2)
+        assets = round(assets + company.worth, 2)
 
-    return income
+    return income, assets
 
 
 def get_progress(companies, research):
@@ -93,7 +98,9 @@ class Progress:
         self.balance = balance
         self.months = months
 
-        self.income = calculate_income(companies)
+        income, assets = calculate_income(companies)
+        self.income = income
+        self.assets = assets
 
     def save(self):
         file = open(
